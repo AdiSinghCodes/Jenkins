@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Tickets | Employee Helpdesk System</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">EH</div>
+            <div class="brand-text">
+                <h2>Helpdesk</h2>
+                <span>DevOps Edition</span>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="/dashboard" class="nav-link"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
+            <li><a href="/tickets" class="nav-link active"><i class="fa-solid fa-ticket"></i><span>All Tickets</span></a></li>
+            <li><a href="/tickets/new" class="nav-link"><i class="fa-solid fa-plus-circle"></i><span>New Ticket</span></a></li>
+            <li><a href="/h2-console" target="_blank" class="nav-link"><i class="fa-solid fa-database"></i><span>H2 Console</span></a></li>
+            <li><a href="/actuator/health" target="_blank" class="nav-link"><i class="fa-solid fa-heart-pulse"></i><span>Actuator Health</span></a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <span class="devops-badge"><i class="fa-solid fa-code-branch"></i> Git: v1.0.0</span>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">CI/CD: Jenkins + Docker</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Ticket Directory</h1>
+                <p>Manage, filter, and track support requests</p>
+            </div>
+            <div>
+                <a href="/tickets/new" class="btn btn-primary" id="newTicketBtn">
+                    <i class="fa-solid fa-plus"></i> Create Ticket
+                </a>
+            </div>
+        </div>
+
+        <!-- Success Alert -->
+        <div th:if="${successMessage}" class="alert-success" id="flashSuccessAlert">
+            <i class="fa-solid fa-circle-check"></i>
+            <span th:text="${successMessage}">Ticket created!</span>
+        </div>
+
+        <!-- Filter Panel -->
+        <div class="glass-panel" style="padding: 16px 24px; margin-bottom: 24px;">
+            <form action="/tickets" method="get" style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <input type="text" name="search" id="tableSearchInput" class="form-control" 
+                           placeholder="Search tickets by title, ID, requester..." th:value="${searchQuery}">
+                </div>
+                <div style="width: 160px;">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        <option th:each="st : ${statuses}" 
+                                th:value="${st}" 
+                                th:text="${st}" 
+                                th:selected="${st == selectedStatus}"></option>
+                    </select>
+                </div>
+                <div style="width: 160px;">
+                    <select name="priority" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Priorities</option>
+                        <option th:each="pr : ${priorities}" 
+                                th:value="${pr}" 
+                                th:text="${pr}" 
+                                th:selected="${pr == selectedPriority}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-secondary"><i class="fa-solid fa-filter"></i> Filter</button>
+                <a href="/tickets" class="btn btn-secondary" style="padding: 10px 14px;"><i class="fa-solid fa-rotate"></i> Reset</a>
+            </form>
+        </div>
+
+        <!-- Tickets Table Panel -->
+        <div class="glass-panel">
+            <table class="custom-table" id="ticketsTable">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Subject &amp; Description</th>
+                        <th>Requester</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ticket : ${tickets}">
+                        <td th:text="${ticket.ticketNumber}" style="font-weight: 700; color: #818cf8;">TICK-1001</td>
+                        <td>
+                            <div style="font-weight: 600; color: white;" th:text="${ticket.title}">Title</div>
+                            <div style="font-size: 12px; color: var(--text-muted); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" th:text="${ticket.description}">Desc</div>
+                        </td>
+                        <td>
+                            <div th:text="${ticket.requesterName}" style="font-weight: 500;">Requester</div>
+                            <div th:text="${ticket.department}" style="font-size: 11px; color: var(--text-muted);">Dept</div>
+                        </td>
+                        <td th:text="${ticket.category}">HARDWARE</td>
+                        <td>
+                            <span th:class="'badge badge-' + ${#strings.toLowerCase(ticket.priority)}" th:text="${ticket.priority}">HIGH</span>
+                        </td>
+                        <td>
+                            <span th:class="'badge badge-' + ${#strings.toLowerCase(ticket.status)}" th:text="${ticket.status}">OPEN</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a th:href="@{'/tickets/' + ${ticket.id}}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eye"></i> View</a>
+                                <a th:href="@{'/tickets/' + ${ticket.id} + '/edit'}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-pen"></i> Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(tickets)}">
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="fa-solid fa-folder-open" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                            No tickets found matching your criteria.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

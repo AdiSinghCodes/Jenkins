@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Ticket | Employee Helpdesk System</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">EH</div>
+            <div class="brand-text">
+                <h2>Helpdesk</h2>
+                <span>DevOps Edition</span>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="/dashboard" class="nav-link"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
+            <li><a href="/tickets" class="nav-link"><i class="fa-solid fa-ticket"></i><span>All Tickets</span></a></li>
+            <li><a href="/tickets/new" class="nav-link active"><i class="fa-solid fa-plus-circle"></i><span>New Ticket</span></a></li>
+            <li><a href="/h2-console" target="_blank" class="nav-link"><i class="fa-solid fa-database"></i><span>H2 Console</span></a></li>
+            <li><a href="/actuator/health" target="_blank" class="nav-link"><i class="fa-solid fa-heart-pulse"></i><span>Actuator Health</span></a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <span class="devops-badge"><i class="fa-solid fa-code-branch"></i> Git: v1.0.0</span>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">CI/CD: Jenkins + Docker</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Submit New Ticket</h1>
+                <p>Report an IT issue or service request</p>
+            </div>
+            <div>
+                <a href="/tickets" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+            </div>
+        </div>
+
+        <div class="glass-panel" style="max-width: 800px;">
+            <form action="/tickets" method="post" id="createTicketForm" th:object="${ticket}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="requesterName">Full Name *</label>
+                        <input type="text" id="requesterName" name="requesterName" class="form-control" placeholder="e.g. Aditya Singh" required th:field="*{requesterName}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="requesterEmail">Work Email *</label>
+                        <input type="email" id="requesterEmail" name="requesterEmail" class="form-control" placeholder="e.g. aditya@company.com" required th:field="*{requesterEmail}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="department">Department</label>
+                        <input type="text" id="department" name="department" class="form-control" placeholder="e.g. DevOps / Engineering" th:field="*{department}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="category">Category *</label>
+                        <select id="category" name="category" class="form-select" required th:field="*{category}">
+                            <option value="">Select Category</option>
+                            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label" for="title">Ticket Subject / Title *</label>
+                        <input type="text" id="title" name="title" class="form-control" placeholder="Brief summary of the issue" required th:field="*{title}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="priority">Priority Level *</label>
+                    <select id="priority" name="priority" class="form-select" required th:field="*{priority}">
+                        <option value="">Select Priority</option>
+                        <option th:each="pr : ${priorities}" th:value="${pr}" th:text="${pr}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="description">Detailed Description *</label>
+                    <textarea id="description" name="description" class="form-control" rows="5" placeholder="Provide step-by-step details about what happened..." required th:field="*{description}"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                    <a href="/tickets" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" id="submitTicketBtn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Submit Ticket</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

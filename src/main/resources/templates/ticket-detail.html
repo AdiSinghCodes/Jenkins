@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Details | Employee Helpdesk System</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">EH</div>
+            <div class="brand-text">
+                <h2>Helpdesk</h2>
+                <span>DevOps Edition</span>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="/dashboard" class="nav-link"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
+            <li><a href="/tickets" class="nav-link active"><i class="fa-solid fa-ticket"></i><span>All Tickets</span></a></li>
+            <li><a href="/tickets/new" class="nav-link"><i class="fa-solid fa-plus-circle"></i><span>New Ticket</span></a></li>
+            <li><a href="/h2-console" target="_blank" class="nav-link"><i class="fa-solid fa-database"></i><span>H2 Console</span></a></li>
+            <li><a href="/actuator/health" target="_blank" class="nav-link"><i class="fa-solid fa-heart-pulse"></i><span>Actuator Health</span></a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <span class="devops-badge"><i class="fa-solid fa-code-branch"></i> Git: v1.0.0</span>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">CI/CD: Jenkins + Docker</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <h1 th:text="${ticket.ticketNumber}">TICK-1001</h1>
+                    <span th:class="'badge badge-' + ${#strings.toLowerCase(ticket.status)}" th:text="${ticket.status}">OPEN</span>
+                    <span th:class="'badge badge-' + ${#strings.toLowerCase(ticket.priority)}" th:text="${ticket.priority}">HIGH</span>
+                </div>
+                <p th:text="${ticket.title}">Ticket Title</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="/tickets" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+                <a th:href="@{'/tickets/' + ${ticket.id} + '/edit'}" class="btn btn-secondary"><i class="fa-solid fa-pen"></i> Edit Ticket</a>
+            </div>
+        </div>
+
+        <!-- Success Alert -->
+        <div th:if="${successMessage}" class="alert-success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span th:text="${successMessage}">Status updated!</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+            <!-- Left Panel: Ticket Details & Description -->
+            <div>
+                <div class="glass-panel">
+                    <h3 class="panel-title" style="margin-bottom: 16px;"><i class="fa-solid fa-align-left" style="color: var(--primary); margin-right: 8px;"></i> Problem Description</h3>
+                    <p style="white-space: pre-line; line-height: 1.6; color: var(--text-main);" th:text="${ticket.description}">Description text goes here...</p>
+                </div>
+
+                <div class="glass-panel" th:if="${ticket.resolutionNotes != null and !#strings.isEmpty(ticket.resolutionNotes)}">
+                    <h3 class="panel-title" style="margin-bottom: 16px; color: #34d399;"><i class="fa-solid fa-check-double" style="margin-right: 8px;"></i> Resolution Notes</h3>
+                    <p style="white-space: pre-line; line-height: 1.6; color: #a7f3d0;" th:text="${ticket.resolutionNotes}">Resolution details...</p>
+                </div>
+            </div>
+
+            <!-- Right Panel: Status Workflow Controls & Metadata -->
+            <div>
+                <div class="glass-panel">
+                    <h3 class="panel-title" style="margin-bottom: 16px;">IT Support Action Gate</h3>
+                    
+                    <form th:action="@{'/tickets/' + ${ticket.id} + '/status'}" method="post">
+                        <div class="form-group">
+                            <label class="form-label">Update Status</label>
+                            <select name="status" class="form-select" id="statusSelect">
+                                <option th:each="st : ${statuses}" 
+                                        th:value="${st}" 
+                                        th:text="${st}" 
+                                        th:selected="${st == ticket.status}"></option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Assigned Agent</label>
+                            <input type="text" name="assignedAgent" class="form-control" placeholder="e.g. IT Agent Alex" th:value="${ticket.assignedAgent}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Resolution / Internal Notes</label>
+                            <textarea name="resolutionNotes" class="form-control" rows="3" placeholder="Enter resolution details or agent comments..." th:text="${ticket.resolutionNotes}"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;" id="updateStatusBtn">
+                            <i class="fa-solid fa-floppy-disk"></i> Save &amp; Update Workflow
+                        </button>
+                    </form>
+                </div>
+
+                <div class="glass-panel" style="font-size: 13px; color: var(--text-muted);">
+                    <h3 class="panel-title" style="font-size: 14px; margin-bottom: 12px;">Ticket Metadata</h3>
+                    <p style="margin-bottom: 8px;"><strong>Requester:</strong> <span th:text="${ticket.requesterName}">Aditya</span> (<span th:text="${ticket.requesterEmail}">email</span>)</p>
+                    <p style="margin-bottom: 8px;"><strong>Department:</strong> <span th:text="${ticket.department != null ? ticket.department : 'General'}">Dept</span></p>
+                    <p style="margin-bottom: 8px;"><strong>Category:</strong> <span th:text="${ticket.category}">NETWORK</span></p>
+                    <p style="margin-bottom: 8px;"><strong>Created:</strong> <span th:text="${#temporals.format(ticket.createdAt, 'yyyy-MM-dd HH:mm')}">Date</span></p>
+                    <p><strong>Last Updated:</strong> <span th:text="${#temporals.format(ticket.updatedAt, 'yyyy-MM-dd HH:mm')}">Date</span></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

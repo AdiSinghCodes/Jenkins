@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Ticket | Employee Helpdesk System</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">EH</div>
+            <div class="brand-text">
+                <h2>Helpdesk</h2>
+                <span>DevOps Edition</span>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="/dashboard" class="nav-link"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
+            <li><a href="/tickets" class="nav-link active"><i class="fa-solid fa-ticket"></i><span>All Tickets</span></a></li>
+            <li><a href="/tickets/new" class="nav-link"><i class="fa-solid fa-plus-circle"></i><span>New Ticket</span></a></li>
+            <li><a href="/h2-console" target="_blank" class="nav-link"><i class="fa-solid fa-database"></i><span>H2 Console</span></a></li>
+            <li><a href="/actuator/health" target="_blank" class="nav-link"><i class="fa-solid fa-heart-pulse"></i><span>Actuator Health</span></a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <span class="devops-badge"><i class="fa-solid fa-code-branch"></i> Git: v1.0.0</span>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">CI/CD: Jenkins + Docker</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Edit Ticket <span th:text="${ticket.ticketNumber}">TICK-1001</span></h1>
+                <p>Modify ticket details and assignments</p>
+            </div>
+            <div>
+                <a th:href="@{'/tickets/' + ${ticket.id}}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Cancel</a>
+            </div>
+        </div>
+
+        <div class="glass-panel" style="max-width: 800px;">
+            <form th:action="@{'/tickets/' + ${ticket.id} + '/edit'}" method="post" th:object="${ticket}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Subject / Title</label>
+                        <input type="text" name="title" class="form-control" th:field="*{title}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-select" th:field="*{category}">
+                            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        <select name="priority" class="form-select" th:field="*{priority}">
+                            <option th:each="pr : ${priorities}" th:value="${pr}" th:text="${pr}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select" th:field="*{status}">
+                            <option th:each="st : ${statuses}" th:value="${st}" th:text="${st}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="5" th:field="*{description}" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Assigned Agent</label>
+                        <input type="text" name="assignedAgent" class="form-control" th:field="*{assignedAgent}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Department</label>
+                        <input type="text" name="department" class="form-control" th:field="*{department}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Resolution Notes</label>
+                    <textarea name="resolutionNotes" class="form-control" rows="3" th:field="*{resolutionNotes}"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                    <a th:href="@{'/tickets/' + ${ticket.id}}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

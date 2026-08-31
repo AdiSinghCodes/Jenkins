@@ -1,0 +1,86 @@
+Here is our **Step-by-Step Master Execution Plan** to build your entire DevOps project from start to finish:
+
+---
+
+### 🚀 **Step 1: Build the Core Application (Java + Spring Boot + Maven)**
+- **What we do**: Create the complete working **Employee Helpdesk System** web application.
+- **Files created**:
+  - `pom.xml` (Maven configuration with Spring Boot, H2 database, Thymeleaf, Selenium dependencies).
+  - Java Backend (`Ticket.java`, `TicketController.java`, `DashboardController.java`, `ApiController.java`, `TicketService.java`).
+  - Web UI Templates (Responsive HTML/CSS Dashboard with real-time counters, Ticket creation form, Ticket list & filter view, Status update modal).
+- **Result**: A 100% functional web application running locally via Maven.
+
+---
+
+### 📂 **Step 2: Set up Git & GitHub Standards (Module 4)**
+- **What we do**: Configure repository best practices for Git collaboration.
+- **Files created**:
+  - `README.md` (Project overview & quickstart guide).
+  - `.gitignore` (Ignores Maven build outputs, IDE configs, screenshots).
+  - `.github/ISSUE_TEMPLATE/` (`bug_report.md`, `feature_request.md`).
+  - `.github/PULL_REQUEST_TEMPLATE.md`.
+
+---
+
+### 📝 **Step 3: Document Planning & Requirements (Modules 1, 2, & 3)**
+- **What we do**: Generate college deliverable documentation files.
+- **Files created**:
+  - `docs/01_Problem_Statement_and_Scope.md` (Stakeholder analysis, pain points, 15-week MVP scope).
+  - `docs/02_Agile_Planning_and_DevOps_Workflow.md` (User stories, 15-week Scrum plan, Definition of Done, DevOps flowchart).
+  - `docs/03_SRS_Architecture_and_DataModel.md` (Architecture diagram, ER diagram, REST API list).
+
+---
+
+### 🔀 **Step 4: Document Git Branching & Merge Evidence (Modules 5 & 6)**
+- **What we do**: Create step-by-step evidence for feature branches, pull requests, merge conflict resolution, and tagging version `v1.0.0`.
+- **Files created**:
+  - `docs/04_Git_Policy_and_Branching.md` (Branching guidelines, PR review checklist, Git commands log, tag `v1.0.0` evidence).
+
+---
+
+### 🧪 **Step 5: Write Automated Selenium UI Tests (Module 9)**
+- **What we do**: Create automated browser tests to test the web application automatically.
+- **Files created**:
+  - `src/test/java/com/helpdesk/selenium/EmployeeHelpdeskUserJourneysTest.java` (Automated tests for ticket creation, search/filter, status workflow, and dashboard stats).
+  - `src/test/java/com/helpdesk/selenium/FailureScreenshotListener.java` (Saves screenshots automatically if a test fails).
+
+---
+
+### ⚙️ **Step 6: Build Jenkins CI/CD Pipeline as Code (Modules 7, 8, & 10)**
+- **What we do**: Write the Jenkins automation pipeline script.
+- **Files created**:
+  - `Jenkinsfile` (Declarative pipeline: Checkout $\rightarrow$ Maven Build $\rightarrow$ Unit Tests $\rightarrow$ Selenium Quality Gate $\rightarrow$ Package JAR).
+  - `devops/jenkins/jenkins_job_config.xml` (Jenkins GUI configuration file).
+
+---
+
+### 🐳 **Step 7: Dockerize the Application (Modules 11 & 12)**
+- **What we do**: Package the application into a lightweight Docker container image.
+- **Files created**:
+  - `Dockerfile` (Multi-stage build: JDK compile $\rightarrow$ JRE runtime image).
+  - `docker-compose.yml` (Orchestrates App + Nginx + Database).
+  - `devops/docker/docker_lifecycle.sh` (Script demonstrating Docker build, tag, container run, port mapping, logs, stop/start).
+
+---
+
+### 🛠️ **Step 8: Infrastructure as Code with Ansible (Modules 13 & 14)**
+- **What we do**: Automate target server provisioning and zero-downtime deployment.
+- **Files created**:
+  - `devops/ansible/inventory.ini` & `devops/ansible/playbook.yml` (Ansible playbook to automatically install Docker, Java, Nginx, configure firewall, deploy container).
+  - `devops/ansible/health_check_rollback.sh` (Health check monitor and rollback script).
+
+---
+
+### 📚 **Step 9: Compile Final Master Project Report & Viva Guide (Module 15)**
+- **What we do**: Create the complete submission documentation for your professor and viva evaluation.
+- **Files created**:
+  - `docs/15_Final_DevOps_Project_Report.md` (Comprehensive master report, architecture diagrams, viva Q&A guide, presentation slide outlines, and troubleshooting manual).
+
+---
+
+### ✅ **Step 10: Build Verification & Final Sanity Check**
+- **What we do**: Run `mvn clean package` to verify that all Java code compiles with zero errors, unit tests pass, and all deliverables are intact.
+
+---
+
+### Would you like me to start executing **Step 1** (building the core Java Spring Boot + Maven application and UI)?
