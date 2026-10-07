@@ -18,7 +18,7 @@
       apt:
         update_cache: yes
         cache_valid_time: 3600
-      ignore_errors: yes
+      when: ansible_os_family == "Debian"
 
     - name: 2. Install System Prerequisites (Java, Docker, Curl, Git, Nginx)
       package:
@@ -30,7 +30,6 @@
           - git
           - nginx
         state: present
-      ignore_errors: yes
 
     - name: 3. Ensure Dedicated System Group Exists
       group:
@@ -61,7 +60,6 @@
         name: docker
         state: started
         enabled: yes
-      ignore_errors: yes
 
     - name: 7. Deploy Application Container
       docker_container:
@@ -74,7 +72,6 @@
         env:
           PORT: "{{ app_port }}"
           SPRING_PROFILES_ACTIVE: "default"
-      ignore_errors: yes
 
     - name: 8. Verify Application Actuator Health Endpoint
       uri:
@@ -85,7 +82,6 @@
       retries: 5
       delay: 5
       until: health_check.status == 200
-      ignore_errors: yes
 
     - name: 9. Print Deployment Health Status
       debug:

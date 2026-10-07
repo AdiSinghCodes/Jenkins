@@ -7,11 +7,13 @@ import com.helpdesk.model.Ticket;
 import com.helpdesk.repository.TicketRepository;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.Select;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ExtendWith(FailureScreenshotExtension.class)
 public class EmployeeHelpdeskUserJourneysTest {
 
     @LocalServerPort
@@ -32,12 +35,11 @@ public class EmployeeHelpdeskUserJourneysTest {
     @Autowired
     private TicketRepository ticketRepository;
 
-    private WebDriver driver;
+    public WebDriver driver; // Public for FailureScreenshotExtension access
     private String baseUrl;
 
     @BeforeAll
     public void setupClass() {
-        // Setup Chrome binary in headless mode for CI/CD compatibility
         WebDriverManager.chromedriver().setup();
     }
 
@@ -45,7 +47,7 @@ public class EmployeeHelpdeskUserJourneysTest {
     public void setup() {
         baseUrl = "http://localhost:" + port;
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new"); // Run headless for CI/Jenkins pipeline compatibility
+        options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--remote-allow-origins=*");
@@ -60,9 +62,8 @@ public class EmployeeHelpdeskUserJourneysTest {
     }
 
     @AfterEach
-    public void tearDown(TestInfo testInfo) {
+    public void tearDown() {
         if (driver != null) {
-            // If test failed, capture screenshot automatically
             driver.quit();
         }
     }
@@ -70,29 +71,26 @@ public class EmployeeHelpdeskUserJourneysTest {
     @Test
     @DisplayName("User Journey 1: Create a new IT ticket via UI form and verify submission")
     public void testCreateTicketUserJourney() {
-        if (driver == null) return; // Skip if browser driver unavailable in headless environment
+        if (driver == null) return;
 
         driver.get(baseUrl + "/tickets/new");
 
-        // Fill out ticket submission form
         driver.findElement(By.id("requesterName")).sendKeys("Selenium Automation User");
         driver.findElement(By.id("requesterEmail")).sendKeys("selenium.test@company.com");
         driver.findElement(By.id("department")).sendKeys("DevOps QA");
-        driver.findElement(By.id("category")).sendKeys("NETWORK");
+        
+        new Select(driver.findElement(By.id("category"))).selectByValue("NETWORK");
         driver.findElement(By.id("title")).sendKeys("Automated Test: VPN Latency Spike");
-        driver.findElement(By.id("priority")).sendKeys("HIGH");
+        new Select(driver.findElement(By.id("priority"))).selectByValue("HIGH");
         driver.findElement(By.id("description")).sendKeys("Detailed description created by automated Selenium test suite.");
 
-        // Submit form
         driver.findElement(By.id("submitTicketBtn")).click();
 
-        // Assert redirect to ticket list and success alert presence
         assertTrue(driver.getCurrentUrl().contains("/tickets"), "Should redirect to ticket list URL");
         WebElement alert = driver.findElement(By.id("flashSuccessAlert"));
         assertNotNull(alert, "Flash success message alert should be visible");
         assertTrue(alert.getText().contains("created successfully"), "Alert text should confirm ticket creation");
 
-        // Verify database persistence
         List<Ticket> searchResults = ticketRepository.searchTickets("VPN Latency Spike");
         assertFalse(searchResults.isEmpty(), "Created ticket should exist in database");
         assertEquals("Selenium Automation User", searchResults.get(0).getRequesterName());
@@ -105,11 +103,9 @@ public class EmployeeHelpdeskUserJourneysTest {
 
         driver.get(baseUrl + "/tickets");
 
-        // Use search bar
         WebElement searchInput = driver.findElement(By.id("tableSearchInput"));
         searchInput.sendKeys("VPN");
 
-        // Assert table displays filtered rows
         List<WebElement> rows = driver.findElements(By.cssSelector("#ticketsTable tbody tr"));
         assertFalse(rows.isEmpty(), "Filtered table should contain matching ticket rows");
     }
@@ -119,20 +115,30 @@ public class EmployeeHelpdeskUserJourneysTest {
     public void testITSupportWorkflowUserJourney() {
         if (driver == null) return;
 
-        // Fetch first ticket ID from database
         Ticket firstTicket = ticketRepository.findAll().get(0);
 
         driver.get(baseUrl + "/tickets/" + firstTicket.getId());
 
-        // Update status to IN_PROGRESS and set agent name
-        WebElement statusSelect = driver.findElement(By.id("statusSelect"));
-        statusSelect.sendKeys("IN_PROGRESS");
-        
+        WebElement statusSelectElem = driver.findElement(By.id("statusSelect"));
+        Select statusSelect = new Select(statusSelectElem);
+        statusSelect.selectByValue("IN_PROGRESS");
+
+        driver.findElement(By.name("assignedAgent")).clear();
+        driver.findElement(By.name("assignedAgent")).sendKeys("IT Agent Alex");
+        driver.findElement(By.name("resolutionNotes")).clear();
+        driver.findElement(By.name("resolutionNotes")).sendKeys("Investigating network traffic");
+
         driver.findElement(By.id("updateStatusBtn")).click();
 
-        // Assert updated ticket state
-        Ticket updated = ticketRepository.findById(firstTicket.getId()).orElseThrow();
-        assertEquals(Status.IN_PROGRESS, updated.getStatus(), "Ticket status should update to IN_PROGRESS");
+        // Assert DOM element renders updated status badge
+        WebElement badge = driver.findElement(By.cssSelector(".badge-in_progress"));
+        assertNotNull(badge, "Status badge for IN_PROGRESS should render on page");
+        assertTrue(badge.getText().equalsIgnoreCase("IN_PROGRESS"));
+
+        // Re-query database via search query to bypass Hibernate L1 entity cache
+        List<Ticket> fresh = ticketRepository.searchTickets(firstTicket.getTicketNumber());
+        assertFalse(fresh.isEmpty());
+        assertEquals(Status.IN_PROGRESS, fresh.get(0).getStatus(), "Ticket status in database should be IN_PROGRESS");
     }
 
     @Test
