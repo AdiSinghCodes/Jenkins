@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven-3.9.6'
-        jdk 'JDK-17'
-    }
-
     environment {
         APP_NAME = 'employee-helpdesk-system'
         REGISTRY_USER = 'adisingh'

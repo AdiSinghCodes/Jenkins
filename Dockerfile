@@ -1,22 +1,4 @@
-# Multi-Stage Dockerfile for Employee Helpdesk System (Aditya Singh - Roll No: 23102B0010)
-
-# =========================================================================
-# STAGE 1: Build & Package Spring Boot Application
-# =========================================================================
-FROM maven:3.9.6-eclipse-temurin-17-alpine AS builder
-
-WORKDIR /build
-
-# Copy Maven POM and source code
-COPY pom.xml .
-COPY src ./src
-
-# Build executable JAR without running tests (tests executed in CI quality gate stage)
-RUN mvn clean package -DskipTests
-
-# =========================================================================
-# STAGE 2: Production JRE Lightweight Runtime Container
-# =========================================================================
+# Production Lightweight Dockerfile for Employee Helpdesk System (Aditya Singh - Roll No: 23102B0010)
 FROM eclipse-temurin:17-jre-alpine
 
 LABEL maintainer="Aditya Singh <aditya.singh@company.com>"
@@ -28,8 +10,8 @@ RUN addgroup -S helpdesk && adduser -S helpdesk -G helpdesk
 
 WORKDIR /app
 
-# Copy compiled JAR from builder stage
-COPY --from=builder /build/target/employee-helpdesk-system-1.0.0.jar app.jar
+# Copy compiled JAR artifact directly from build target
+COPY target/employee-helpdesk-system-1.0.0.jar app.jar
 
 # Change ownership to non-root user
 RUN chown -R helpdesk:helpdesk /app
