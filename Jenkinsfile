@@ -20,7 +20,7 @@ pipeline {
             steps {
                 echo '=== Stage 1: Checking out source code from GitHub ==='
                 checkout scm
-                git status
+                sh 'git status'
             }
         }
 
